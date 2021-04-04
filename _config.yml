@@ -67,7 +67,8 @@ gitalk:
   clientSecret: 303bca03ce8647bd2d6f843499505c9bd25fcf74
   repo: dddblog
   owner: dddgithub
-  proxy:
+  proxy: https://netnr-proxy.cloudno.de/https://github.com/login/oauth/access_token
+#proxy:
 
 # 输入Google Analytics web tracking code
 google_analytics:
