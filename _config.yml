@@ -36,6 +36,7 @@ paginate: 8
 
 # 文章简介的区分标记
 excerpt_separator: <!-- more -->
+
 # 你的社交网络链接，它们会作为图标出现在你的网站页脚中，可选填写
 footer-links: 
   weibo: #frommidworld #请输入你的微博个性域名 https://www.weibo.com/<thispart>
@@ -58,14 +59,14 @@ footer-links:
 footer-text: Copyright (c) 2020 DDD
 
 # 输入Disqus shortname，即可添加评论区，细节可阅读文档。
-disqus: dddblogs #shortname
+#disqus: dddblogs #shortname
 
 # 输入Gitalk相关设定，即可添加评论区，具体请看教程
 gitalk:
-  clientID: 
-  clientSecret: 
-  repo: 
-  owner: 
+  clientID: 4f531b75d3de1f7c8b4b 
+  clientSecret: 303bca03ce8647bd2d6f843499505c9bd25fcf74
+  repo: dddblog
+  owner: dddgithub
   proxy:
 
 # 输入Google Analytics web tracking code
@@ -118,4 +119,3 @@ exclude:
   - README.md
   - CNAME
 
-excerpt_separator: ---
