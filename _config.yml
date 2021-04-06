@@ -64,7 +64,7 @@ footer-text: Copyright (c) 2020 DDD
 # 输入Gitalk相关设定，即可添加评论区，具体请看教程
 gitalk:
   clientID: 4f531b75d3de1f7c8b4b 
-  clientSecret: 303bca03ce8647bd2d6f843499505c9bd25fcf74
+  clientSecret: 2fcbda4078e035a46d51566d65022d6bc5192334
   repo: dddblog
   owner: dddgithub
   proxy: 
