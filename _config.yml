@@ -121,3 +121,5 @@ exclude:
   - README.md
   - CNAME
 
+
+theme: jekyll-theme-minimal
