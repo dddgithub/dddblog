@@ -65,7 +65,7 @@ footer-text: Copyright (c) 2020 DDD
 gitalk:
   clientID: 4f531b75d3de1f7c8b4b 
   clientSecret: 2fcbda4078e035a46d51566d65022d6bc5192334
-  repo: mytalk
+  repo: dddgithub
   owner: dddgithub
   proxy: 
 #https://github.com/login/oauth/access_token
