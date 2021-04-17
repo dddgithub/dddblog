@@ -7,7 +7,7 @@
 # 井号后面的文字是说明文档，不会被程序读取。
 name: DDD
 # 描述/签名
-description: 一个学习备忘
+description: Note
 
 #
 # 下面的设定都是可选的
