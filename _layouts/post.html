@@ -31,7 +31,9 @@ layout: default
 
   {% include disqus.html %}
   {% include utteranc.html %}
+  {% if page.comments != false %}
   {% include gitalk.html %}
+  {% endif %}
 </article>
 
 <div class="pagination">
