@@ -1,10 +1,10 @@
 ---
 layout: post
-title: Hello World
+title: dlv debug goplus
 date: 2021-11-16
 Author: DDD
 categories:
-tags: [sample, document]
+tags: [lang]
 comments: false
 toc: true
 pinned: true
@@ -15,9 +15,9 @@ gop run hello.gop 类似 go run 命令运行一个源码文件
 调试一下看看具体的一些工作过程
 
 ### dlv debug
-在翻代码的的过程中，顺带在源码里增加了有一些打印代码，和官方的源码在代码对应的行数上略有些偏差
+在翻代码的的过程中，顺带在源码里增加了一些打印代码，和官方的源码在代码对应的行数上略有些偏差
 
-给 gop 程序的入口设个断点
+**给 gop 程序的入口设个断点**
 ```bash
 $     dlv debug ../../gop-1.0.16/cmd/gop/main.go
 Type 'help' for list of commands.
@@ -25,25 +25,25 @@ Type 'help' for list of commands.
 Breakpoint 1 set at 0x1484a52 for main.main() goplus/gop-1.0.16/cmd/gop/main.go:58
 ```
 
-给 gop run 命令的执行入口设个断点
+**给 gop run 命令的执行入口设个断点**
 ```bash
 (dlv) b run.runCmd
 Breakpoint 2 set at 0x1480292 for github.com/goplus/gop/cmd/internal/run.runCmd() goplus/src/github.com/goplus/gop/cmd/internal/run/run.go:98
 ```
 
-在官方的发布目录下有个简单的例子
+**在官方的发布目录下有个简单的例子**
 ```go
 // gop-1.0.16/tutorial/01-Hello-world/hello.gop
 println("Hello, world!")
 ```
 
-跑例子代码前，把对一个的 go 文件删除一下
+**跑例子代码前，把对一个的 go 文件删除一下**
 ```bash
 rm gop_autogen_hello.gop.go
 ```
 
 
-跑下 hello.gop 源码文件
+**跑下 hello.gop 源码文件**
 ```bash
 (dlv) r run hello.gop
 Process restarted with PID 5572
@@ -63,7 +63,8 @@ Process restarted with PID 5572
 (dlv)
 ```
 
-再 c 到 run 的命令入口，看下调用栈
+**再 c 到 run 命令的入口，看下调用栈**
+
 ```bash
 (dlv) bt
 0 0x000000000148048f in github.com/goplus/gop/cmd/internal/run.runCmd
@@ -76,7 +77,8 @@ at /usr/local/Cellar/go/1.17.2/libexec/src/runtime/proc.go:255
 at /usr/local/Cellar/go/1.17.2/libexec/src/runtime/asm_amd64.s:1581
 ```
 
-n 一下代码的执行，找下输入的 hello.gop 源码文件信息, 后面主要是关注这个源码文件的处理过程
+**n 一下代码的执行，找下输入的 hello.gop 源码文件信息, 后面主要是关注这个源码文件的处理过程**
+
 ```bash
 147: } else {
 148: srcDir, file = filepath.Split(src)
@@ -88,8 +90,8 @@ n 一下代码的执行，找下输入的 hello.gop 源码文件信息, 后面�
 "hello.gop"
 ```
 
-从编译原理的知识看，是会有个入口对 hello.gop 源文件做处理的
-逐行 n 一下可以发现 parser 的入口，大致类似 go parser 的机制
+**从编译原理的知识看，一般会有个入口对 hello.gop 源文件做处理**
+**逐行 n 一下可以发现 parser 的入口，大致类似 go parser 的机制**
 
 ```bash
 => 172:					pkgs, err = parser.Parse(fset, src, nil, 0) // TODO: only to check dependencies
@@ -100,7 +102,7 @@ n 一下代码的执行，找下输入的 hello.gop 源码文件信息, 后面�
 
 ### 词法分析
 
-设置下 parser 的入口断点, 看下调用栈
+**设置 parser 的入口断点, 看下调用栈**
 
 ```bash
 (dlv) b parser.Parse
@@ -118,7 +120,8 @@ at /usr/local/Cellar/go/1.17.2/libexec/src/runtime/proc.go:255
 at /usr/local/Cellar/go/1.17.2/libexec/src/runtime/asm_amd64.s:1581
 ```
 
-一些列的 parser 调用之后，看到了把源码文件内容读入内存中，形成字节流
+**一系列的 parser 调用之后，看到了把源码文件内容读入内存中，形成字节流**
+
 ```bash
 (dlv) bt
 0 0x000000000141bdb2 in github.com/goplus/gop/parser.parseFSFileEx
@@ -150,7 +153,8 @@ at /usr/local/Cellar/go/1.17.2/libexec/src/runtime/asm_amd64.s:1581
 []uint8 len: 25, cap: 512, [112,114,105,110,116,108,110,40,34,72,101,108,108,111,44,32,119,111,114,108,100,33,34,41,10]
 ```
 
-读取源码内容后，继续调用 parser 的相关解析函数
+**读取源码内容后，继续调用 parser 的相关解析函数**
+
 ```bash
 > github.com/goplus/gop/parser.parseFile() goplus/src/github.com/goplus/gop/parser/interface.go:74 (PC: 0x13fc815)
     69:		if fset == nil {
@@ -164,7 +168,7 @@ at /usr/local/Cellar/go/1.17.2/libexec/src/runtime/asm_amd64.s:1581
     77:		}
 ```
 
-看下 parser.readSource 的调用栈
+**看下 parser.readSource 的调用栈**
 
 ```bash
 /goplus/gop/parser/parser_gop.go:285 (PC: 0x141d0ad)
@@ -193,8 +197,9 @@ at /usr/local/Cellar/go/1.17.2/libexec/src/runtime/asm_amd64.s:1581
     at /usr/local/Cellar/go/1.17.2/libexec/src/runtime/asm_amd64.s:1581
 ```
 
-源码内容继续传递往下调用
-这里构建一个解析器对象 p，专门解析这个源码
+**源码内容继续传递往下调用**
+**这里构建一个解析器对象 p，专门解析这个源码**
+
 ```bash
 goplus/gop/parser/interface.go:107 (PC: 0x13fcb6f)
    102:			p.errors.Sort()
@@ -215,7 +220,7 @@ PackageClauseOnly (1)
 (dlv) bt
 ```
 
-看下 p 对象的内容, 源码文件的字节流内容已经设置进入了
+**看下 p 对象的内容, 源码文件的字节流内容已经设置进入了**
 
 ```bash
 (dlv) p p
@@ -264,7 +269,7 @@ github.com/goplus/gop/parser.parser {
 (dlv)
 ```
 
-接着调用 p 解析器的 parseFile 函数，看下调用栈
+**接着调用 p 解析器的 parseFile 函数，看下调用栈**
 
 ```bash
 >3151:	func (p *parser) parseFile() *ast.File {
@@ -298,9 +303,9 @@ github.com/goplus/gop/parser.parser {
     at /usr/local/Cellar/go/1.17.2/libexec/src/runtime/asm_amd64.s:1581
 ```
 
-然后又一系列的解析函数调用，到了这里
-看下面这个函数返回的 err 不为空，大概就是还没有能构成一个完整的 go AST, 比如缺了 package 声明
-对源码中追加补齐 package main 的声明
+**然后又一系列的解析函数调用，到了这里**
+**看下面这个函数返回的 err 不为空，大概就是还没有能构成一个完整的  AST, 比如缺了 package 声明**
+**对源码中追加补齐 package main 的声明**
 
 ```bash
 228:		f, err = parseFile(fsetTmp, filename, code, PackageClauseOnly) //  在 package 子句之后停止解析
@@ -329,7 +334,7 @@ github.com/goplus/gop/parser.parser {
    at /usr/local/Cellar/go/1.17.2/libexec/src/runtime/asm_amd64.s:1581
 ```
 
-补齐了代码，继续调用解析
+**补齐了代码，继续调用解析**
 
 ```bash
 => 245:		_, err = parseFile(fsetTmp, filename, code, mode)
@@ -339,7 +344,7 @@ github.com/goplus/gop/parser.parser {
    249:					var entrypoint string
 ```
 
-继续新的一轮源码内容解析
+**继续新的一轮源码内容解析**
 
 ```bash
 goplus/gop/parser/interface.go:67 (PC: 0x13fc72e)
@@ -377,7 +382,8 @@ goplus/gop/parser/interface.go:67 (PC: 0x13fc72e)
    at /usr/local/Cellar/go/1.17.2/libexec/src/runtime/asm_amd64.s:1581
 ```
 
-补 main 模块的 main.main 函数入口
+**补 main 模块的 main.main 函数入口**
+
 ```bash
 goplus/gop/parser/parser_gop.go:259 (PC: 0x141ca38)
    254:						entrypoint = "func MainEntry()"
@@ -405,7 +411,7 @@ goplus/gop/parser/parser_gop.go:273 (PC: 0x141ce25)
    278:			}
 ```
 
-开始解析一个完整的 go 源码内容
+**开始解析一个完整的源码内容**
 
 ```bash
 goplus/gop/parser/parser.go:3185 (PC: 0x1419e1c)
@@ -427,12 +433,15 @@ goplus/gop/parser/parser.go:3185 (PC: 0x1419e1c)
 (dlv)
 ```
 
-```
-(dlv) b run.go:228
-Breakpoint 4 set at 0x14818a2 for github.com/goplus/gop/cmd/internal/run.runCmd() goplus/src/github.com/goplus/gop/cmd/internal/run/run.go:228
+**补齐的代码如下**
 
+```go
 package main; func main(){println("Hello, world!")}
+```
 
+**获得的 AST 树结构**
+
+```json
      0  *ast.Package {
      1  .  Name: "main"
      2  .  Files: map[string]*ast.File (len = 1) {
@@ -509,7 +518,7 @@ package main; func main(){println("Hello, world!")}
 
 ### 语法分析
 
-开始要做声明语法的分析
+**开始要做声明语法的分析**
 
 ```bash
 goplus/src/github.com/goplus/gop/parser/parser.go:3196 (PC: 0x141a592)
@@ -524,7 +533,7 @@ goplus/src/github.com/goplus/gop/parser/parser.go:3196 (PC: 0x141a592)
   3199:		}
 ```
 
-看下声明语法分析的入口
+**看下声明语法分析的入口**
 
 ```
 goplus/gop/parser/parser.go:3120 (PC: 0x1419602)
@@ -567,13 +576,14 @@ goplus/gop/parser/parser.go:3120 (PC: 0x1419602)
 (dlv)
 ```
 
-因为之前把源码补齐了内容，main package 下实际只有一个 func main() 函数声明，
-函数中包裹了 hello.gop 中的那行代码
+**因为之前把源码补齐了内容，main package 下实际只有一个 func main() 函数声明，
+函数中包裹了 hello.gop 中的那行代码**
+
 ```go
 println("Hello, world!")
 ```
 
-所以语法解析进入到了 token.FUNC 函数声明中进行解析
+**所以语法解析进入到了 token.FUNC 函数声明中进行解析**
 
 ```bash
 goplus/src/github.com/goplus/gop/parser/parser.go:3133 (PC: 0x1419727)
@@ -590,7 +600,7 @@ goplus/src/github.com/goplus/gop/parser/parser.go:3133 (PC: 0x1419727)
   3138:			return decl
 ```
 
-看下对 func main 函数声明解析的处理调用栈
+**看下对 func main 函数声明解析的处理调用栈**
 
 ```bash
 goplus/src/github.com/goplus/gop/parser/parser.go:3056 (PC: 0x1418ddf)
@@ -635,7 +645,7 @@ goplus/src/github.com/goplus/gop/parser/parser.go:3056 (PC: 0x1418ddf)
 (dlv)
 ```
 
-准备开始处理函数体内容
+**准备开始处理函数体内容**
 
 ```bash
 goplus/src/github.com/goplus/gop/parser/parser.go:3075 (PC: 0x1418ff6)
@@ -652,7 +662,7 @@ goplus/src/github.com/goplus/gop/parser/parser.go:3075 (PC: 0x1418ff6)
   3080:				// opening { of function declaration on next line
 ```
 
-准备处理函数内的声明语句
+**准备处理函数内的声明语句**
 
 ```bash
 /goplus/src/github.com/goplus/gop/parser/parser.go:1309 (PC: 0x1407cf6)
@@ -669,7 +679,7 @@ goplus/src/github.com/goplus/gop/parser/parser.go:3075 (PC: 0x1418ff6)
   1314:		return &ast.BlockStmt{Lbrace: lbrace, List: list, Rbrace: rbrace}
 ```
 
-看下语句列表处理的调用栈
+**看下语句列表处理的调用栈**
 
 ```bash
 goplus/src/github.com/goplus/gop/parser/parser.go:1294 (PC: 0x1407991)
@@ -718,7 +728,7 @@ goplus/src/github.com/goplus/gop/parser/parser.go:1294 (PC: 0x1407991)
 (dlv)
 ```
 
-开始逐步处理语句，返回的 AST 节点对象压入 list
+**开始逐步处理语句，返回的 AST 节点对象压入 list**
 
 ```bash
 goplus/src/github.com/goplus/gop/parser/parser.go:1295 (PC: 0x1407a29)
@@ -734,7 +744,7 @@ goplus/src/github.com/goplus/gop/parser/parser.go:1295 (PC: 0x1407a29)
   1299:	}
 ```
 
-看下单条语句的解析处理
+**看下单条语句的解析处理**
 
 ```bash
 goplus/src/github.com/goplus/gop/parser/parser.go:2843 (PC: 0x1416d13)
@@ -764,7 +774,7 @@ goplus/src/github.com/goplus/gop/parser/parser.go:2843 (PC: 0x1416d13)
   2853:				p.expectSemi()
 ```
 
-看下解析返回的结构 
+**看下解析返回的结构 **
 
 ```bash
 (dlv) p s
@@ -780,7 +790,7 @@ github.com/goplus/gop/ast.Stmt(*github.com/goplus/gop/ast.ExprStmt) *{
 		NoParenEnd: NoPos (0),},}
 ```
 
-构造一个 ast.BlockStmt 返回
+**构造一个 ast.BlockStmt 返回**
 
 ```bash
 =>1310:		p.closeLabelScope()
@@ -796,7 +806,7 @@ github.com/goplus/gop/ast.Stmt(*github.com/goplus/gop/ast.ExprStmt) *{
 ]
 ```
 
-构造一个 ast.FuncDecl 返回
+**构造一个 ast.FuncDecl 返回**
 
 ```bash
 goplus/src/github.com/goplus/gop/parser/parser.go:3090 (PC: 0x14190f0)
@@ -826,7 +836,7 @@ goplus/src/github.com/goplus/gop/parser/parser.go:3098 (PC: 0x1419227)
   3103:			// variable, or function (but not method) declared at top level
 ```
 
-看下函数体 body 的内容，可以看到 println("Hello, world!") 的相关信息
+**看下函数体 body 的内容，可以看到 println("Hello, world!") 的相关信息**
 
 ```bash
 dlv) p body
@@ -871,6 +881,8 @@ github.com/goplus/gop/ast.Expr(*github.com/goplus/gop/ast.BasicLit) *{
 (dlv)
 ```
 
+**开始构造返回 AST 节点, ast.BlockStmt**
+```bash
 goplus/src/github.com/goplus/gop/parser/parser.go:1314 (PC: 0x1407d4e)
   1309:		list := p.parseStmtList()
   1310:		p.closeLabelScope()
@@ -881,7 +893,9 @@ goplus/src/github.com/goplus/gop/parser/parser.go:1314 (PC: 0x1407d4e)
   1315:	}
 ```
 
-​```bash
+**处理声明**
+
+```bash
 goplus/src/github.com/goplus/gop/parser/parser.go:3109 (PC: 0x1419352)
   3104:			// (outside any function) is the package block.
   3105:			//
@@ -974,6 +988,8 @@ interface {}(*github.com/goplus/gop/ast.FuncDecl) *{
 interface {} nil
 ```
 
+**看下函数声明返回的结构**
+
 ```bash
 goplus/src/github.com/goplus/gop/parser/parser.go:3138 (PC: 0x14197b7)
   3133:			decl := p.parseFuncDecl()
@@ -1008,7 +1024,7 @@ goplus/src/github.com/goplus/gop/parser/parser.go:3138 (PC: 0x14197b7)
 	Operator: false,}
 ```
 
-语法解析构建返回根节点 ast.File
+**语法解析构建返回根节点 ast.File**
 
 ```bash
 goplus/src/github.com/goplus/gop/parser/parser.go:3216 (PC: 0x141a04a)
@@ -1042,7 +1058,7 @@ goplus/src/github.com/goplus/gop/parser/parser.go:3216 (PC: 0x141a04a)
 ]
 ```
 
-源码解析完成，返回 AST 抽象语法树, ast.File
+**源码解析完成，返回 AST 抽象语法树, ast.File**
 
 
 ```bash
@@ -1092,14 +1108,14 @@ goplus/src/github.com/goplus/gop/parser/parser_gop.go:85 (PC: 0x141abf7)
     82:			return
     83:		}
     84:
-=>  85:		到这里说明 go 语法补齐，go 语法树生成完毕
+=>  85:		//到这里说明语法补齐，语法树生成完毕
     86:
     87:		pkgs = make(map[string]*ast.Package)
     88:		pkgs[file.Name.Name] = astFileToPkg(file, target)
     89:		return
 ```
 
-把返回的 ast.File 和 package 信息关联
+**把返回的 ast.File 和 package 信息关联**
 
 ```bash
 goplus/src/github.com/goplus/gop/parser/parser_gop.go:93 (PC: 0x141adca)
@@ -1129,8 +1145,8 @@ goplus/src/github.com/goplus/gop/parser/parser_gop.go:93 (PC: 0x141adca)
    at /usr/local/Cellar/go/1.17.2/libexec/src/runtime/asm_amd64.s:1581
 ```
 
-创建 ast.Package 对象，可以看到进入列表 pkg.Files[fileName] = file
-一个 package 有多个源文件，一个源文件对应一个 ast.File 语法树
+**创建 ast.Package 对象，可以看到进入列表 pkg.Files[fileName] = file
+一个 package 有多个源文件，一个源文件对应一个 ast.File 语法树**
 
 ```bash
 goplus/src/github.com/goplus/gop/parser/parser_gop.go:96 (PC: 0x141adf0)
@@ -1156,7 +1172,7 @@ goplus/src/github.com/goplus/gop/parser/parser_gop.go:96 (PC: 0x141adf0)
 "main"
 ```
 
-源码解析后返回一个 package 对象列表
+**源码解析后返回一个 package 对象列表**
 
 ```bash
 goplus/src/github.com/goplus/gop/cmd/internal/run/run.go:172 (PC: 0x148109e)
@@ -1185,7 +1201,7 @@ Values returned:
 
 ### 编译阶段
 
-对 main package 的处理 
+**对 main package 的处理 **
 
 ```bash
 goplus/src/github.com/goplus/gop/cmd/internal/run/run.go:221 (PC: 0x148171c)
@@ -1214,7 +1230,7 @@ goplus/src/github.com/goplus/gop/cmd/internal/run/run.go:221 (PC: 0x148171c)
    228:			}
 ```
 
-进入 AST 语法树的编译处理阶段，一般后续的是做语义分析和语法查错，编程成中间代码，汇编代码等
+**进入 AST 语法树的编译处理阶段，一般后续的是做语义分析和语法查错，编程成中间代码，汇编代码等**
 
 ```bash
 goplus/src/github.com/goplus/gop/cl/compile.go:391 (PC: 0x143682a)
@@ -1241,7 +1257,7 @@ goplus/src/github.com/goplus/gop/cl/compile.go:391 (PC: 0x143682a)
    at /usr/local/Cellar/go/1.17.2/libexec/src/runtime/asm_amd64.s:1581
 ```
 
-去调用 gox 模块的做对 AST 后续 的处理
+**去调用 gox 模块的做对 AST 后续 的处理**
 
 ```bash
 goplus/src/github.com/goplus/gop/cl/compile.go:421 (PC: 0x1436ec1)
@@ -1257,7 +1273,7 @@ goplus/src/github.com/goplus/gop/cl/compile.go:421 (PC: 0x1436ec1)
    425:				break
 ```
 
-看下调用栈
+**看下调用栈**
 
 ```bash
 goplus/src/github.com/goplus/gox/package.go:332 (PC: 0x13bc59d)
@@ -1287,7 +1303,7 @@ goplus/src/github.com/goplus/gox/package.go:332 (PC: 0x13bc59d)
    at /usr/local/Cellar/go/1.17.2/libexec/src/runtime/asm_amd64.s:1581
 ```
 
-做一层 package 的封装, 操作 AST 数据结构的调整和转换
+**做一层 package 的封装, 操作 AST 数据结构的调整和转换**
 
 ```bash
 /goplus/src/github.com/goplus/gox/package.go:348 (PC: 0x13bc74e)
@@ -1304,7 +1320,7 @@ goplus/src/github.com/goplus/gox/package.go:332 (PC: 0x13bc59d)
    353:		pkg.utBigInt = conf.UntypedBigInt
 ```
 
-初始化了 pkg.cb ，这是个代码生成器，
+**初始化了 pkg.cb ，这是个代码生成器，作用类似把 ATS 转成中间代码或汇编代码**
 
 ```bash
 goplus/src/github.com/goplus/gox/package.go:357 (PC: 0x13bc92c)
