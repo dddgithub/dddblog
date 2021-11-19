@@ -71,7 +71,7 @@ package 1                 package 2     ...   package n
          .go 源码文件1   .go 源码文件2 .... 源码文件n 
 ```
 
-## go 源码的结构
+## go 源码结构
 
 一个 go 源码文件的结构如下，可以看到声明所处的位置,   go 文法在 src/cmd/gc/go.y ，go 文法规则参见【Bison】
 
@@ -360,6 +360,19 @@ import_package:
 然后从 I 参数导入的路径中查找
 
 最后从 GOROOT 环境变量中查找
+
+## go 源码 AST
+```
+                  Package
+                     |
+        +------------+----------------+
+    ast.File 1     ast.File 2    ... ast.File n
+                     |
+                    ast.Decl
+      +--------------+--------------------+
+  ast.GenDecl                     ast.FuncDecl
+```
+
 
 ## 参考
 
