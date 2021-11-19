@@ -1,6 +1,6 @@
 ---
 layout: post
-title: dlv debug gop run
+title: 调试 gop run 运行过程
 date: 2021-11-16
 Author: DDD
 categories:

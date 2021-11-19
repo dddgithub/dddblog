@@ -1,6 +1,6 @@
 ---
 layout: post
-title: go source code structure
+title: go 程序结构
 date: 2021-11-19
 Author: DDD
 categories:
